@@ -1,0 +1,25 @@
+{
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "name": "sidakpasricha_com",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.0.0",
+    "@types/node": "^20.11.17",
+    "express": "^4.21.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "http-proxy-middleware": "^3.0.3"
+  }
+}

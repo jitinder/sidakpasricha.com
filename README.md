@@ -1,2 +1,0 @@
-# sidakpasricha.com
-Personal website
