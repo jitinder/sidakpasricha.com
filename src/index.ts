@@ -2,6 +2,7 @@ import express, { Request, Response } from "express"
 import { createProxyMiddleware } from "http-proxy-middleware"
 
 const app = express();
+const PORT = 3001
 
 const IMAGE_RESOURCE = "image"
 const METADATA_RESOURCE = "metadata"
@@ -32,8 +33,6 @@ function pathFilter(path: string, req: Request) {
     } catch {
         return false
     }
-
-    console.log({ splitPath })
     return true
 }
 
@@ -56,4 +55,6 @@ const penguverseProxy = createProxyMiddleware<Request, Response>({
 
 app.use("/penguverse", penguverseProxy);
 
-app.listen(3000, () => console.log("Server ready on port 3000."));
+app.listen(PORT, () => console.log("Server ready on port:", PORT));
+
+export default app;
