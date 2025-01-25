@@ -26,7 +26,7 @@ export default async function WorkoutPage() {
           <div className="h-[300px] w-full bg-blue-500">Chart here</div>
           <Separator /> */}
           <h1 className="text-2xl font-bold pb-2">Progress:</h1>
-          <div className="grid-cols-2 grid gap-4 mb-6">
+          <div className="grid-cols-2 grid gap-4 mb-8 overflow-auto">
             {users.map((user) => (
               <div key={user} className="h-[200px] w-full">
                 <ChartCard user={user} userLogs={logs} />
