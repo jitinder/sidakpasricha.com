@@ -1,25 +1,27 @@
 {
-  "engines": {
-    "node": ">=20.6.0"
-  },
-  "name": "sidakpasricha_com",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "sidakpasricha.com",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "build": "tsc",
-    "dev": "ts-node src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "license": "ISC",
-  "devDependencies": {
-    "@types/node": "^20.11.17",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@types/express": "^4.0.0",
-    "express": "^4.21.1",
-    "http-proxy-middleware": "^3.0.3"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "15.1.6"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.6",
+    "@eslint/eslintrc": "^3"
   }
 }
