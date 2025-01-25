@@ -55,7 +55,10 @@ export default function ChartCard({
         <CardTitle className="text-sm">{user}</CardTitle>
       </CardHeader>
       <CardContent className="pb-0">
-        <ChartContainer config={chartConfig} className="h-full w-full">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-[150px] w-full"
+        >
           <AreaChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
