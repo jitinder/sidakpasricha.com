@@ -51,16 +51,18 @@ export async function getLatestTargets({
   env = RedisEnv.DEV,
 }: {
   env?: RedisEnv;
-}) {
+}): Promise<Record<string, Target>> {
   const users = await getUsers({ env });
-  const targetsPromises = await Promise.all(
-    users.map(async (user): Promise<[string, Target | null]> => {
+  const targets: Record<string, Target> = {};
+  await Promise.all(
+    users.map(async (user) => {
       const target = await getTargets({ user });
-      return [user, target];
+      if (target) {
+        targets[user] = target;
+      }
     })
   );
-  const nonNullTargets = targetsPromises.filter(([, target]) => !!target);
-  return Object.fromEntries(nonNullTargets);
+  return targets;
 }
 
 export async function getTargets({

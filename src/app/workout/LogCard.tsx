@@ -7,7 +7,7 @@ import { deleteLog, Target } from "@/lib/redis";
 import { fromUnixTime, format } from "date-fns";
 import { CalendarCheck, PercentSquare, Weight } from "lucide-react";
 
-const TargetTypes = [
+export const TargetTypes = [
   {
     icon: <Weight />,
     name: "Body Weight",

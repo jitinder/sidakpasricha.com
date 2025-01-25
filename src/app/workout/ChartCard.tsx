@@ -13,7 +13,7 @@ import { Target } from "@/lib/redis";
 import { format, fromUnixTime } from "date-fns";
 import React from "react";
 
-export default function ChartCard({
+export default function LogChartCard({
   user,
   userLogs,
 }: {

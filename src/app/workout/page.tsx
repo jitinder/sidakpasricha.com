@@ -2,38 +2,53 @@ import {
   addLog,
   deleteLog,
   getAllLogs,
-  // getLatestTargets,
+  getLatestTargets,
   getUsers,
 } from "@/lib/redis";
 import AddTargetDialog from "./admin/AddTargetDialog";
 import { Separator } from "@/components/ui/separator";
 import { LogCard } from "./LogCard";
-import ChartCard from "./ChartCard";
+import LogChartCard from "./ChartCard";
+import TargetProgress from "./TargetProgress";
 
 export default async function WorkoutPage() {
   const users = await getUsers({});
-  // const targets = await getLatestTargets({});
+  const targets = await getLatestTargets({});
   const logs = await getAllLogs({});
   const hasLogs = Object.keys(logs).length;
 
   return (
     <div className="flex flex-col w-full h-screen items-center gap-4">
       <h1 className="text-4xl font-bold text-center">Workout Tracker</h1>
-      <AddTargetDialog users={users} onAdd={addLog} label="Log" logType />
+      <AddTargetDialog
+        users={users}
+        onAdd={addLog}
+        label="Log Progress"
+        logType
+      />
       <div className="md:w-1/2 sm:w-full flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold pb-2">Targets:</h1>
+        <div className="flex flex-wrap w-full">
+          {users.map((user) => (
+            <div key={user} className="w-1/2 p-2">
+              <TargetProgress user={user} userLogs={logs} targets={targets} />
+            </div>
+          ))}
+        </div>
+        <Separator />
+        <div className="flex flex-col gap-2 w-full">
           {/* <h1 className="text-2xl font-bold pb-2">Overview:</h1>
           <div className="h-[300px] w-full bg-blue-500">Chart here</div>
           <Separator /> */}
           <h1 className="text-2xl font-bold pb-2">Progress:</h1>
           {users.map((user) => (
             <div key={user} className="h-[200px] w-full mb-6">
-              <ChartCard user={user} userLogs={logs} />
+              <LogChartCard user={user} userLogs={logs} />
             </div>
           ))}
         </div>
         <Separator />
-        <div>
+        <div className="mb-8">
           <h1 className="text-2xl font-bold pb-2">Logs:</h1>
           {hasLogs ? (
             logs.map((userLog) => (
