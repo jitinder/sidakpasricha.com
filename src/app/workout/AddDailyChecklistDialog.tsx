@@ -61,6 +61,7 @@ export default function AddDailyChecklistDialog({
     logProgress: z.boolean(),
     steps: z.boolean(),
     sleep: z.boolean(),
+    water: z.boolean(),
   });
 
   const fields: { name: keyof z.infer<typeof FormSchema>; label: string }[] = [
@@ -88,6 +89,10 @@ export default function AddDailyChecklistDialog({
       name: "sleep",
       label: "Had enough sleep",
     },
+    {
+      name: "water",
+      label: "Drank enough water",
+    },
   ];
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -98,6 +103,9 @@ export default function AddDailyChecklistDialog({
       progressPicture: false,
       diet: false,
       logProgress: false,
+      steps: false,
+      sleep: false,
+      water: false,
     },
   });
 
@@ -110,6 +118,7 @@ export default function AddDailyChecklistDialog({
       logProgress: data.logProgress,
       steps: data.steps,
       sleep: data.sleep,
+      water: data.water,
     };
     await onAdd({
       user: data.user,

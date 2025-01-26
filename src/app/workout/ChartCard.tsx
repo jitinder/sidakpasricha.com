@@ -56,6 +56,7 @@ export default function LogChartCard({
               logProgress: checklist.logProgress ? 1 : 0,
               steps: checklist.steps ? 1 : 0,
               sleep: checklist.sleep ? 1 : 0,
+              water: checklist.water ? 1 : 0,
             }
           : undefined
       )
@@ -91,6 +92,9 @@ export default function LogChartCard({
     },
     sleep: {
       label: "Sleep",
+    },
+    water: {
+      label: "Water",
     },
   } satisfies ChartConfig;
 

@@ -19,4 +19,5 @@ export type DailyChecklist = {
   logProgress: boolean;
   steps: boolean;
   sleep: boolean;
+  water: boolean;
 };
