@@ -60,7 +60,35 @@ export default function AddDailyChecklistDialog({
     diet: z.boolean(),
     logProgress: z.boolean(),
     steps: z.boolean(),
+    sleep: z.boolean(),
   });
+
+  const fields: { name: keyof z.infer<typeof FormSchema>; label: string }[] = [
+    {
+      name: "workout",
+      label: "Completed Workout",
+    },
+    {
+      name: "progressPicture",
+      label: "Took Progress Picture",
+    },
+    {
+      name: "diet",
+      label: "Managed Diet",
+    },
+    {
+      name: "logProgress",
+      label: "Logged Progress",
+    },
+    {
+      name: "steps",
+      label: "Met Step count",
+    },
+    {
+      name: "sleep",
+      label: "Had enough sleep",
+    },
+  ];
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -81,6 +109,7 @@ export default function AddDailyChecklistDialog({
       diet: data.diet,
       logProgress: data.logProgress,
       steps: data.steps,
+      sleep: data.sleep,
     };
     await onAdd({
       user: data.user,
@@ -166,99 +195,26 @@ export default function AddDailyChecklistDialog({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="workout"
-              render={({ field }) => {
-                return (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">
-                      Completed Workout
-                    </FormLabel>
-                  </FormItem>
-                );
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="progressPicture"
-              render={({ field }) => {
-                return (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">
-                      Took Progress Picture
-                    </FormLabel>
-                  </FormItem>
-                );
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="diet"
-              render={({ field }) => {
-                return (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">Managed Diet</FormLabel>
-                  </FormItem>
-                );
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="logProgress"
-              render={({ field }) => {
-                return (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">
-                      Logged Progress
-                    </FormLabel>
-                  </FormItem>
-                );
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="steps"
-              render={({ field }) => {
-                return (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">
-                      Met Step count
-                    </FormLabel>
-                  </FormItem>
-                );
-              }}
-            />
+            {fields.map(({ name, label }) => (
+              <FormField
+                control={form.control}
+                key={name}
+                name={name}
+                render={({ field }) => {
+                  return (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value as boolean}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">{label}</FormLabel>
+                    </FormItem>
+                  );
+                }}
+              />
+            ))}
             <DialogFooter>
               <Button type="submit">Save changes</Button>
             </DialogFooter>

@@ -28,6 +28,10 @@ const TargetTypes = {
     fieldName: "steps" as keyof DailyChecklist,
     label: "Steps",
   },
+  sleep: {
+    fieldName: "sleep" as keyof DailyChecklist,
+    label: "Sleep",
+  },
 };
 
 export function ChecklistCard({

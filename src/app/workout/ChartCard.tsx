@@ -55,6 +55,7 @@ export default function LogChartCard({
               diet: checklist.diet ? 1 : 0,
               logProgress: checklist.logProgress ? 1 : 0,
               steps: checklist.steps ? 1 : 0,
+              sleep: checklist.sleep ? 1 : 0,
             }
           : undefined
       )
@@ -87,6 +88,9 @@ export default function LogChartCard({
     },
     steps: {
       label: "Step count",
+    },
+    sleep: {
+      label: "Sleep",
     },
   } satisfies ChartConfig;
 
@@ -148,36 +152,17 @@ export default function LogChartCard({
                     />
                   }
                 />
-                <Bar
-                  dataKey="workout"
-                  stackId="a"
-                  radius={[4, 4, 4, 4]}
-                  fill="hsl(var(--chart-1))"
-                />
-                <Bar
-                  dataKey="progressPicture"
-                  stackId="a"
-                  radius={[4, 4, 4, 4]}
-                  fill="hsl(var(--chart-2))"
-                />
-                <Bar
-                  dataKey="diet"
-                  stackId="a"
-                  radius={[4, 4, 4, 4]}
-                  fill="hsl(var(--chart-3))"
-                />
-                <Bar
-                  dataKey="logProgress"
-                  stackId="a"
-                  radius={[4, 4, 4, 4]}
-                  fill="hsl(var(--chart-4))"
-                />
-                <Bar
-                  dataKey="steps"
-                  stackId="a"
-                  radius={[4, 4, 4, 4]}
-                  fill="hsl(var(--chart-5))"
-                />
+                {Object.keys(chartConfig2).map((key, index) => (
+                  <Bar
+                    key={key}
+                    dataKey={key}
+                    stackId="a"
+                    radius={[4, 4, 4, 4]}
+                    fill={`hsl(var(--chart-${
+                      index + 1 > 5 ? index + 1 - 5 : index + 1
+                    }))`}
+                  />
+                ))}
               </BarChart>
             </ChartContainer>
           </>
