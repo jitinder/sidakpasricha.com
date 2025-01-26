@@ -59,6 +59,7 @@ export default function AddDailyChecklistDialog({
     progressPicture: z.boolean(),
     diet: z.boolean(),
     logProgress: z.boolean(),
+    steps: z.boolean(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -79,6 +80,7 @@ export default function AddDailyChecklistDialog({
       progressPicture: data.progressPicture,
       diet: data.diet,
       logProgress: data.logProgress,
+      steps: data.steps,
     };
     await onAdd({
       user: data.user,
@@ -233,6 +235,25 @@ export default function AddDailyChecklistDialog({
                     </FormControl>
                     <FormLabel className="font-normal">
                       Logged Progress
+                    </FormLabel>
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="steps"
+              render={({ field }) => {
+                return (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal">
+                      Met Step count
                     </FormLabel>
                   </FormItem>
                 );

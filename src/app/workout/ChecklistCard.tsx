@@ -24,6 +24,10 @@ const TargetTypes = {
     fieldName: "logProgress" as keyof DailyChecklist,
     label: "Log Progress",
   },
+  steps: {
+    fieldName: "steps" as keyof DailyChecklist,
+    label: "Steps",
+  },
 };
 
 export function ChecklistCard({

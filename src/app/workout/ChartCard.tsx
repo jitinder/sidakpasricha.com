@@ -54,6 +54,7 @@ export default function LogChartCard({
               progressPicture: checklist.progressPicture ? 1 : 0,
               diet: checklist.diet ? 1 : 0,
               logProgress: checklist.logProgress ? 1 : 0,
+              steps: checklist.steps ? 1 : 0,
             }
           : undefined
       )
@@ -83,6 +84,9 @@ export default function LogChartCard({
     },
     logProgress: {
       label: "Log Progress",
+    },
+    steps: {
+      label: "Step count",
     },
   } satisfies ChartConfig;
 
@@ -137,7 +141,12 @@ export default function LogChartCard({
                 />
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
+                  content={
+                    <ChartTooltipContent
+                      indicator="line"
+                      labelFormatter={() => "Checklist"}
+                    />
+                  }
                 />
                 <Bar
                   dataKey="workout"
@@ -162,6 +171,12 @@ export default function LogChartCard({
                   stackId="a"
                   radius={[4, 4, 4, 4]}
                   fill="hsl(var(--chart-4))"
+                />
+                <Bar
+                  dataKey="steps"
+                  stackId="a"
+                  radius={[4, 4, 4, 4]}
+                  fill="hsl(var(--chart-5))"
                 />
               </BarChart>
             </ChartContainer>

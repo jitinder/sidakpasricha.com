@@ -17,4 +17,5 @@ export type DailyChecklist = {
   progressPicture: boolean;
   diet: boolean;
   logProgress: boolean;
+  steps: boolean;
 };
