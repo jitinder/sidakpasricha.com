@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import redis from "./redis";
-import { Log, RedisEnv, Target } from "./types";
+import { DailyChecklist, Log, RedisEnv, Target } from "./types";
 
 function getKey(env: RedisEnv, ...keys: string[]) {
   return `${env}:${keys.join(":")}`;
@@ -131,4 +131,69 @@ export async function getLogs({
       ...JSON.parse(log),
     };
   });
+}
+
+export async function addDailyChecklist({
+  env = RedisEnv.DEV,
+  user,
+  checklist,
+}: {
+  env?: RedisEnv;
+  user: string;
+  checklist: DailyChecklist;
+}) {
+  await redis.lPush(
+    getKey(env, "dailyChecklist", user),
+    JSON.stringify(checklist)
+  );
+  revalidatePath("/workout");
+}
+
+export async function getDailyChecklist({
+  env = RedisEnv.DEV,
+  user,
+}: {
+  env?: RedisEnv;
+  user: string;
+}): Promise<({ index: number } & DailyChecklist)[]> {
+  const checklists = await redis.lRange(
+    getKey(env, "dailyChecklist", user),
+    0,
+    -1
+  );
+  return checklists.map((checklist, index) => {
+    return { index, ...JSON.parse(checklist) };
+  });
+}
+
+export async function removeDailyChecklist({
+  env = RedisEnv.DEV,
+  user,
+  index,
+}: {
+  env?: RedisEnv;
+  user: string;
+  index: number;
+}) {
+  await redis.lSet(getKey(env, "dailyChecklist", user), index, "DELETED");
+  await redis.lRem(getKey(env, "dailyChecklist", user), 0, "DELETED");
+  revalidatePath("/workout");
+}
+
+export async function getAllDailyChecklist({
+  env = RedisEnv.DEV,
+}: {
+  env?: RedisEnv;
+}) {
+  const users = await getUsers({ env });
+  const checklistsWithUser = await Promise.all(
+    users.map(async (user) => {
+      const checklists = await getDailyChecklist({ env, user });
+      return checklists.map((checklist) => ({ user, ...checklist }));
+    })
+  );
+  const sortedChecklists = checklistsWithUser
+    .flat()
+    .toSorted((a, b) => a.date - b.date);
+  return sortedChecklists;
 }

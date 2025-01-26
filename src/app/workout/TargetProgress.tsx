@@ -86,7 +86,7 @@ export default function TargetProgress({
           )}
         </CardDescription>
         <CardContent className="text-sm pb-1">
-          {latestUserData ? (
+          {latestUserData && target ? (
             <div>
               {Object.values(TargetTypes).map(({ fieldName, icon }) => (
                 <div

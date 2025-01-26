@@ -10,3 +10,11 @@ export type Target = {
 };
 
 export type Log = Target;
+
+export type DailyChecklist = {
+  date: number; // Unix timestamp
+  workout: boolean;
+  progressPicture: boolean;
+  diet: boolean;
+  logProgress: boolean;
+};

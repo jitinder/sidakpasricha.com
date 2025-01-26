@@ -9,8 +9,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectTrigger,
@@ -18,7 +16,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { addLog, addTarget, Target } from "@/lib/redis";
+import { addDailyChecklist, DailyChecklist } from "@/lib/redis";
 import { CalendarIcon, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +27,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import {
@@ -37,20 +34,17 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { format, getUnixTime } from "date-fns";
+import { format, getUnixTime, startOfToday } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import React from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 
-export default function AddTargetDialog({
+export default function AddDailyChecklistDialog({
   users,
   onAdd,
-  label,
-  logType,
 }: {
   users: string[];
-  onAdd: typeof addTarget | typeof addLog;
-  logType?: boolean;
-  label?: string;
+  onAdd: typeof addDailyChecklist;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -58,33 +52,37 @@ export default function AddTargetDialog({
     user: z.string({
       required_error: "A user is required.",
     }),
-    weight: z.coerce.number({
-      required_error: "A weight is required.",
-    }),
-    bodyFat: z.coerce
-      .number({
-        required_error: "A body fat percentage is required.",
-      })
-      .gt(5, "Body fat percentage must be greater than 5."),
-    deadline: z.coerce.date({
+    date: z.coerce.date({
       required_error: "A date is required.",
     }),
+    workout: z.boolean(),
+    progressPicture: z.boolean(),
+    diet: z.boolean(),
+    logProgress: z.boolean(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      date: startOfToday(),
+      workout: false,
+      progressPicture: false,
+      diet: false,
+      logProgress: false,
+    },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const target: Target = {
-      weight: data.weight,
-      bodyFat: data.bodyFat,
-      deadline: getUnixTime(data.deadline),
+    const dailyChecklist: DailyChecklist = {
+      date: getUnixTime(data.date),
+      workout: data.workout,
+      progressPicture: data.progressPicture,
+      diet: data.diet,
+      logProgress: data.logProgress,
     };
     await onAdd({
       user: data.user,
-      target,
-      log: target,
+      checklist: dailyChecklist,
     });
     setOpen(false);
   }
@@ -92,14 +90,14 @@ export default function AddTargetDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size={label ? "default" : "icon"} variant={"outline"}>
+        <Button variant={"outline"}>
           <Plus />
-          {label ? label : null}
+          Daily Checklist
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add {logType ? "Log" : "Target"}</DialogTitle>
+          <DialogTitle>Fill Daily Checklist</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -131,45 +129,10 @@ export default function AddTargetDialog({
             />
             <FormField
               control={form.control}
-              name="weight"
-              defaultValue={75}
-              render={({ field }) => (
-                <FormItem>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <FormLabel>Weight</FormLabel>
-                    <FormControl>
-                      <div className="col-span-3 flex items-center gap-2">
-                        <Input {...field} />
-                        <Label className="text-muted-foreground">kg</Label>
-                      </div>
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="bodyFat"
-              defaultValue={12}
+              name="date"
               render={({ field }) => (
                 <FormItem className="grid grid-cols-4 items-center gap-4">
-                  <FormLabel>Body Fat</FormLabel>
-                  <FormControl>
-                    <div className="col-span-3 flex items-center gap-2">
-                      <Input {...field} />
-                      <Label className="text-muted-foreground">%</Label>
-                    </div>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="deadline"
-              render={({ field }) => (
-                <FormItem className="grid grid-cols-4 items-center gap-4">
-                  <FormLabel>{logType ? "Date" : "Deadline"}</FormLabel>
+                  <FormLabel>Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -200,6 +163,80 @@ export default function AddTargetDialog({
                   </Popover>
                 </FormItem>
               )}
+            />
+            <FormField
+              control={form.control}
+              name="workout"
+              render={({ field }) => {
+                return (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal">
+                      Completed Workout
+                    </FormLabel>
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="progressPicture"
+              render={({ field }) => {
+                return (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal">
+                      Took Progress Picture
+                    </FormLabel>
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="diet"
+              render={({ field }) => {
+                return (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal">Managed Diet</FormLabel>
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="logProgress"
+              render={({ field }) => {
+                return (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal">
+                      Logged Progress
+                    </FormLabel>
+                  </FormItem>
+                );
+              }}
             />
             <DialogFooter>
               <Button type="submit">Save changes</Button>
