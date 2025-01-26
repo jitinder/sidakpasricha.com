@@ -37,7 +37,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { format, getUnixTime } from "date-fns";
+import { format, getUnixTime, startOfToday } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import React from "react";
 
@@ -73,6 +73,9 @@ export default function AddTargetDialog({
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      deadline: startOfToday(),
+    },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
