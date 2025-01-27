@@ -46,14 +46,14 @@ export function LogCard({
           }
         />
         <CardDescription>
-          <div className="flex w-full">
+          <div className="flex w-full flex-wrap">
             {Object.values(TargetTypes).map(({ fieldName, icon }) => (
-              <div key={fieldName} className="px-2 w-1/4">
+              <div key={fieldName} className="p-2 md:w-1/4 w-full">
                 <Badge
-                  className="flex gap-2 justify-evenly"
+                  className="flex gap-2 justify-start"
                   variant={"secondary"}
                 >
-                  <div className="h-6 w-6 text-sky-500">{icon}</div>
+                  <div className="h-6 w-6 text-sky-500 flex-1">{icon}</div>
                   {fieldName === "deadline"
                     ? format(fromUnixTime(userLog[fieldName]), "PP")
                     : fieldName === "bodyFat"

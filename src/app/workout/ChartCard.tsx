@@ -12,7 +12,6 @@ import {
 import { DailyChecklist, Target } from "@/lib/redis";
 import { format, fromUnixTime } from "date-fns";
 import React from "react";
-import { Separator } from "@/components/ui/separator";
 
 export default function LogChartCard({
   user,
@@ -103,7 +102,7 @@ export default function LogChartCard({
       <CardHeader>
         <CardTitle className="text-sm">{user}</CardTitle>
       </CardHeader>
-      <CardContent className="pb-4 h-[150px] flex gap-2">
+      <CardContent className="pb-4 h-[300px] md:h-[150px] flex gap-2 flex-col md:flex-row gap-2">
         {chartData1.length || chartData2.length ? (
           <>
             <ChartContainer
@@ -130,7 +129,6 @@ export default function LogChartCard({
                 <Area dataKey="bodyFat" type="natural" fillOpacity={0.4} />
               </AreaChart>
             </ChartContainer>
-            <Separator orientation="vertical" />
             <ChartContainer
               config={chartConfig2}
               className="aspect-auto h-full w-full"

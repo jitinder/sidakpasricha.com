@@ -36,7 +36,7 @@ export default async function WorkoutPage() {
         <h1 className="text-2xl font-bold">Targets:</h1>
         <div className="flex flex-wrap w-full">
           {users.map((user) => (
-            <div key={user} className="w-1/2 px-2 pb-4">
+            <div key={user} className="w-full md:w-1/2 px-2 pb-4">
               <TargetProgress user={user} userLogs={logs} targets={targets} />
             </div>
           ))}
@@ -45,7 +45,7 @@ export default async function WorkoutPage() {
         <div className="flex flex-col gap-2 w-full">
           <h1 className="text-2xl font-bold pb-2">Overview:</h1>
           {users.map((user) => (
-            <div key={user} className="h-[200px] w-full mb-6">
+            <div key={user} className="md:h-[200px] h-[400px] w-full mb-6">
               <LogChartCard
                 user={user}
                 userLogs={logs}

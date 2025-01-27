@@ -64,7 +64,7 @@ export default function TargetProgress({
     <Card>
       <CardHeader>
         <CardTitle className="text-sm">{user}</CardTitle>
-        <CardDescription className="text-sm flex">
+        <CardDescription className="text-sm flex flex-wrap">
           {target ? (
             Object.values(TargetTypes).map(({ fieldName, icon }) => (
               <div key={fieldName} className="px-2">
