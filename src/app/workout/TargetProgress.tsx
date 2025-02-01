@@ -39,14 +39,12 @@ export default function TargetProgress({
       if (!latestUserData || !target) return 0;
       switch (fieldName) {
         case "weight":
-          if (target.weight > latestUserData.weight) return 100;
           return (
             (1 -
               Math.abs(target.weight - latestUserData.weight) / target.weight) *
             100
           );
         case "bodyFat":
-          if (target.bodyFat > latestUserData.bodyFat) return 100;
           return (
             (1 -
               Math.abs(target.bodyFat - latestUserData.bodyFat) /
