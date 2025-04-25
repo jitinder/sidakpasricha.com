@@ -1,9 +1,6 @@
-import { NextResponse } from "next/server";
-
 async function getCookie(baseUrl: string, shareToken: string) {
   const url = new URL(baseUrl);
   url.searchParams.set("_vercel_share", shareToken);
-
   const response = await fetch(url.toString(), {
     redirect: "manual",
   });
@@ -18,19 +15,19 @@ async function proxyRequest(
   method: string,
   baseUrl: string,
   shareToken: string,
-  queryParams?: string,
+  queryParams?: URLSearchParams,
   body?: Record<string, unknown>
 ) {
   const url = new URL(baseUrl);
-  if (queryParams) {
-    const queryParamsObj = new URLSearchParams(queryParams);
-    queryParamsObj.forEach((value, key) => {
+  
+  // Add all query params except _vercel_share
+  queryParams?.forEach((value, key) => {
+    if (key !== '_vercel_share') {
       url.searchParams.set(key, value);
-    });
-  }
+    }
+  });
 
   const cookie = await getCookie(baseUrl, shareToken);
-
   const response = await fetch(url.toString(), {
     method,
     headers: {
@@ -39,76 +36,69 @@ async function proxyRequest(
     },
     ...(body && { body: JSON.stringify(body) }),
   });
-
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
   return response.json();
 }
 
-function parseUrlAndToken(req: Request, slug: string[]) {
-  const url = new URL(req.url);
-  const shareToken = url.searchParams.get("_vercel_share");
-
-  if (!shareToken) {
-    throw new Error("No share token found in URL");
-  }
-
-  const joinedPath = slug.join("/");
-  const baseUrl = decodeURIComponent(joinedPath);
-
-  // Find any additional path parameters that come after the base URL
-  const queryParams = Array.from(url.searchParams.entries())
-    .filter(([key]) => key !== "_vercel_share")
-    .map(([key, value]) => `${key}=${value}`)
-    .join("&");
-
-  return {
-    baseUrl,
-    shareToken,
-    queryParams: queryParams || undefined,
-  };
-}
-
 export async function GET(
-  req: Request,
-  { params }: { params: { slug: string[] } }
+  request: Request
 ) {
   try {
-    const { slug } = await params;
-    const { baseUrl, shareToken, queryParams } = parseUrlAndToken(req, slug);
-    const data = await proxyRequest("GET", baseUrl, shareToken, queryParams);
-    return NextResponse.json(data);
+    const url = new URL(request.url as string);
+    const pathSegments = url.pathname.split('/').filter(Boolean);
+    const encodedUrl = pathSegments.slice(2).join('/');
+    const baseUrl = decodeURIComponent(encodedUrl);
+    
+    const shareToken = url.searchParams.get('_vercel_share');
+    if (!shareToken) {
+      return new Response(JSON.stringify({ error: "No share token provided" }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const data = await proxyRequest("GET", baseUrl, shareToken, url.searchParams);
+    return new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     console.error("Proxy error:", error);
-    return NextResponse.json(
-      { error: "Proxy request failed" },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: "Proxy request failed" }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 
 export async function POST(
-  req: Request,
-  { params }: { params: { slug: string[] } }
+  request: Request
 ) {
   try {
-    const { slug } = await params;
-    const { baseUrl, shareToken, queryParams } = parseUrlAndToken(req, slug);
-    const body = await req.json();
-    const data = await proxyRequest(
-      "POST",
-      baseUrl,
-      shareToken,
-      queryParams,
-      body
-    );
-    return NextResponse.json(data);
+    const url = new URL(request.url as string);
+    const pathSegments = url.pathname.split('/').filter(Boolean);
+    const encodedUrl = pathSegments.slice(2).join('/');
+    const baseUrl = decodeURIComponent(encodedUrl);
+    
+    const shareToken = url.searchParams.get('_vercel_share');
+    if (!shareToken) {
+      return new Response(JSON.stringify({ error: "No share token provided" }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const body = await request.json();
+    const data = await proxyRequest("POST", baseUrl, shareToken, url.searchParams, body);
+    return new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     console.error("Proxy error:", error);
-    return NextResponse.json(
-      { error: "Proxy request failed" },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: "Proxy request failed" }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
