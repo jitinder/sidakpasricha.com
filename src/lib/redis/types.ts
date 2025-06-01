@@ -21,3 +21,13 @@ export type DailyChecklist = {
   sleep: boolean;
   water: boolean;
 };
+
+export type LeaderboardEntry = {
+  name: string;
+  score: number;
+  activity: string;
+};
+
+export type User = {
+  name: string;
+};

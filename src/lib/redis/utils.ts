@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import redis from "./redis";
-import { DailyChecklist, Log, RedisEnv, Target } from "./types";
+import { DailyChecklist, Log, RedisEnv, Target, LeaderboardEntry } from "./types";
 
 function getKey(env: RedisEnv, ...keys: string[]) {
   return `${env}:${keys.join(":")}`;
@@ -196,4 +196,123 @@ export async function getAllDailyChecklist({
     .flat()
     .toSorted((a, b) => a.date - b.date);
   return sortedChecklists;
+}
+
+export async function getBrolympicsUsers({ env = RedisEnv.DEV }: { env?: RedisEnv }) {
+  const users = await redis.lRange(getKey(env, "brolympics", "users"), 0, -1);
+  return users.filter((user) => user !== "DELETED");
+}
+
+export async function addBrolympicsUser(name: string) {
+  await redis.lPush(getKey(RedisEnv.DEV, "brolympics", "users"), name);
+  revalidatePath("/brolympics");
+}
+
+export async function removeBrolympicsUser(name: string) {
+  "use server";
+  // Remove from leaderboard if exists
+  await removeLeaderboardEntry({ name, env: RedisEnv.DEV });
+  // Remove from users list
+  const users = await getBrolympicsUsers({ env: RedisEnv.DEV });
+  const index = users.indexOf(name);
+  if (index !== -1) {
+    await redis.lSet(getKey(RedisEnv.DEV, "brolympics", "users"), index, "DELETED");
+    await redis.lRem(getKey(RedisEnv.DEV, "brolympics", "users"), 0, "DELETED");
+  }
+  revalidatePath("/brolympics");
+} 
+
+export async function addLeaderboardEntry({
+  env = RedisEnv.DEV,
+  entry,
+}: {
+  env?: RedisEnv;
+  entry: LeaderboardEntry;
+}) {
+  await redis.zAdd(getKey(env, "brolympics", "leaderboard", entry.activity), {
+    score: entry.score,
+    value: entry.name,
+  });
+  revalidatePath("/brolympics");
+}
+
+export async function removeLeaderboardEntry({
+  env = RedisEnv.DEV,
+  name,
+  activity,
+}: {
+  env?: RedisEnv;
+  name: string;
+  activity?: string;
+}) {
+  if (activity) {
+    await redis.zRem(getKey(env, "brolympics", "leaderboard", activity), name);
+  } else {
+    // If no activity specified, remove from all activities
+    const activities = await getActivities({ env });
+    await Promise.all(
+      activities.map((activity) =>
+        redis.zRem(getKey(env, "brolympics", "leaderboard", activity), name)
+      )
+    );
+  }
+  revalidatePath("/brolympics");
+}
+
+export async function getLeaderboard({
+  env = RedisEnv.DEV,
+  activity,
+}: {
+  env?: RedisEnv;
+  activity?: string;
+}): Promise<LeaderboardEntry[]> {
+  if (activity) {
+    const entries = await redis.zRangeWithScores(
+      getKey(env, "brolympics", "leaderboard", activity),
+      0,
+      -1,
+      {
+        REV: true,
+      }
+    );
+    return entries.map((entry) => ({
+      name: entry.value,
+      score: entry.score,
+      activity,
+    }));
+  } else {
+    // Get all activities and combine scores
+    const activities = await getActivities({ env });
+    const allEntries = await Promise.all(
+      activities.map(async (activity) => {
+        const entries = await redis.zRangeWithScores(
+          getKey(env, "brolympics", "leaderboard", activity),
+          0,
+          -1
+        );
+        return entries.map((entry) => ({
+          name: entry.value,
+          score: entry.score,
+          activity,
+        }));
+      })
+    );
+
+    // Combine scores for each user across activities
+    const combinedScores = allEntries
+      .flat()
+      .reduce((acc, entry) => {
+        if (!acc[entry.name]) {
+          acc[entry.name] = { name: entry.name, score: 0, activity: "combined" };
+        }
+        acc[entry.name].score += entry.score;
+        return acc;
+      }, {} as Record<string, LeaderboardEntry>);
+
+    return Object.values(combinedScores).sort((a, b) => b.score - a.score);
+  }
+}
+
+export async function getActivities({ env = RedisEnv.DEV }: { env?: RedisEnv }) {
+  return await redis.sMembers(getKey(env, "brolympics", "activities"));
 }
