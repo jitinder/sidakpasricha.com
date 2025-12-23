@@ -13,19 +13,20 @@ export default function Home() {
     <div className="flex flex-col w-full h-screen items-center justify-center gap-4">
       <h1 className="text-4xl font-bold text-center">Hello, World!</h1>
       <p>This is my personal website. It&apos;s currently under construction</p>
-      <div className="flex flex-col py-8 gap-4">
-        <p>Pages you can visit:</p>
-        {pages.map((page) => (
-          <Link key={page.name} href={"/workout"}>
-            <Card>
-              <CardHeader>
-                <CardTitle>{page.name}</CardTitle>
-                <CardDescription>{page.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      {pages.length ? (
+        <div className="flex flex-col py-8 gap-4">
+          <p>Pages you can visit:</p>
+          {pages.map((page) => (
+            <Link key={page.name} href={"/workout"}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{page.name}</CardTitle>
+                  <CardDescription>{page.description}</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          ))}
+        </div>) : null}
     </div>
   );
 }
